@@ -291,6 +291,7 @@ input{-webkit-appearance:none;outline:none}
     <button class="tb active" onclick="sw('today',this)">今日訓練</button>
     <button class="tb" onclick="sw('history',this)">歷史記錄</button>
     <button class="tb" onclick="sw('remind',this)">⏰ 提醒</button>
+    <button class="tb" onclick="sw('schedule',this)">📅 時間表</button>
     <button class="tb" onclick="sw('info',this)">復健資訊</button>
   </div>
 
@@ -354,6 +355,19 @@ input{-webkit-appearance:none;outline:none}
   </div>
 
   <!-- INFO -->
+  <!-- SCHEDULE -->
+  <div id="tab-schedule" class="tc">
+    <div class="card" style="padding:16px;margin-bottom:14px">
+      <div class="ict">📅 每日時間表</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:14px">根據 12:00 起床 · 00:00 睡覺</div>
+      <div id="schedule-list"></div>
+    </div>
+    <div class="card" style="padding:14px 16px">
+      <div style="font-weight:700;font-size:13px;margin-bottom:10px;color:#fbbf24">⏰ 建議鬧鐘時間</div>
+      <div style="font-size:12px;color:#94a3b8;line-height:2">💪 12:30 · 15:30 · 18:30 · 21:30<br>🤲 13:00 · 18:00 · 22:00</div>
+    </div>
+  </div>
+
   <div id="tab-info" class="tc">
     <div class="card" style="padding:16px;margin-bottom:14px">
       <div class="ict">⏱ 恢復時間表（共6週）</div>
@@ -418,9 +432,21 @@ input{-webkit-appearance:none;outline:none}
 
 <script>
 // ── Constants ──
-const TIMES4 = ["起床後","中午","下午","睡前2小時"];
+const TIMES4 = ["12:30 起床後","15:30 下午","18:30 傍晚","21:30 晚上"];
+const STR_TIMES = ["13:00","18:00","22:00"];
+const FULL_SCHEDULE = [
+  {time:"12:00",icon:"🌅",text:"起床",type:"life"},
+  {time:"12:30",icon:"💪",text:"肌肉訓練 第1組",type:"set"},
+  {time:"13:00",icon:"🤲",text:"伸展 第1次",type:"str"},
+  {time:"15:30",icon:"💪",text:"肌肉訓練 第2組",type:"set"},
+  {time:"18:00",icon:"🤲",text:"伸展 第2次",type:"str"},
+  {time:"18:30",icon:"💪",text:"肌肉訓練 第3組",type:"set"},
+  {time:"21:30",icon:"💪",text:"肌肉訓練 第4組",type:"set"},
+  {time:"22:00",icon:"🤲",text:"伸展 第3次",type:"str"},
+  {time:"00:00",icon:"🌙",text:"睡覺",type:"life"},
+];
 const LABELS = ["第1組 提醒","第2組 提醒","第3組 提醒","第4組 提醒"];
-const DEF_TIMES = ["07:00","12:00","16:00","21:00"];
+const DEF_TIMES = ["12:30","15:30","18:30","21:30"];
 const KEY = "rehab-ios-v1";
 
 // ── State ──
@@ -672,6 +698,7 @@ function sw(tab,btn){
   document.getElementById('tab-'+tab).classList.add('active');
   btn.classList.add('active');
   if(tab==='remind') renderReminders();
+  if(tab==='schedule') renderSchedule();
 }
 
 // ── Timer ──
@@ -708,7 +735,26 @@ function stopTimer(){
 }
 
 // ── Render all ──
-function render(){ updateHeader(); updateSum(); renderSets(); renderStr(); renderHist(); }
+function renderSchedule(){
+  const now=new Date();
+  const nowMin=now.getHours()*60+now.getMinutes();
+  const c=document.getElementById("schedule-list");
+  if(!c) return;
+  c.innerHTML="";
+  FULL_SCHEDULE.forEach(item=>{
+    const [h,m]=item.time.split(":").map(Number);
+    const iMin=h*60+m;
+    const isPast=nowMin>iMin;
+    const isNow=Math.abs(nowMin-iMin)<=30;
+    const color=item.type==="set"?"var(--blue)":item.type==="str"?"var(--purp)":"var(--muted)";
+    const row=document.createElement("div");
+    row.style.cssText="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--border2)";
+    row.innerHTML=`<div style="font-size:18px">${item.icon}</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:${isNow?"#fbbf24":isPast?"var(--dim)":"var(--text)"}">${item.text}${isNow?" 👈":""}</div></div><div style="font-size:13px;font-weight:700;color:${color};${isPast?"opacity:.4":""}">${item.time}</div>`;
+    c.appendChild(row);
+  });
+}
+
+function render(){ updateHeader(); updateSum(); renderSets(); renderStr(); renderHist(); renderSchedule(); }
 
 // ── Init ──
 load(); render(); scheduleInAppAlerts(); checkAlertsOnOpen();

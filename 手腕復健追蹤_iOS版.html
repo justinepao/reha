@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="復健追蹤">
+<meta name="theme-color" content="#0a0f1e">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==">
+<title>手腕復健追蹤 💪</title>
+<style>
+:root{
+  --bg:#0a0f1e;
+  --card:#111827;
+  --card2:#1e293b;
+  --border:#334155;
+  --border2:#1e293b;
+  --blue:#38bdf8;
+  --purp:#818cf8;
+  --green:#4ade80;
+  --red:#f87171;
+  --text:#e2e8f0;
+  --muted:#64748b;
+  --dim:#475569;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bot: env(safe-area-inset-bottom, 0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
+html,body{height:100%;overflow-x:hidden}
+body{
+  background:var(--bg);
+  font-family:-apple-system,'PingFang TC','Helvetica Neue',sans-serif;
+  color:var(--text);
+  padding-bottom:calc(80px + var(--safe-bot));
+}
+button{font-family:inherit;cursor:pointer;border:none;-webkit-appearance:none}
+input{-webkit-appearance:none;outline:none}
+
+/* ── Header ── */
+#hdr{
+  background:linear-gradient(135deg,#1a1f3a,#0f172a);
+  border-bottom:1px solid #1e2d4a;
+  padding:calc(16px + var(--safe-top)) 20px 14px;
+  position:sticky;top:0;z-index:20;
+}
+.hi{max-width:480px;margin:0 auto}
+.hr{display:flex;align-items:center;justify-content:space-between}
+.hst{font-size:10px;letter-spacing:3px;color:var(--blue);text-transform:uppercase;margin-bottom:3px;font-weight:500}
+.htl{font-size:21px;font-weight:800;color:#f1f5f9;letter-spacing:-0.5px}
+.db{text-align:right;background:var(--card2);border-radius:12px;padding:8px 13px;border:1px solid var(--border)}
+.dw{font-size:10px;color:var(--muted);margin-bottom:1px}
+.dn{font-size:18px;font-weight:700;color:var(--blue);letter-spacing:-0.5px}
+.dt{font-size:9px;color:var(--dim)}
+.pbg{margin-top:12px;height:4px;background:var(--card2);border-radius:2px;overflow:hidden}
+#pf{height:100%;background:linear-gradient(90deg,var(--blue),var(--purp));border-radius:2px;transition:width .6s ease;width:0%}
+.pll{display:flex;justify-content:space-between;margin-top:4px;font-size:9px;color:var(--dim)}
+
+/* ── Main ── */
+#main{max-width:480px;margin:0 auto;padding:0 16px}
+
+/* ── Tabs ── */
+.tabs{display:flex;gap:6px;margin-top:14px;margin-bottom:18px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tb{flex:0 0 auto;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:600;transition:all .2s;background:var(--card2);color:var(--muted);white-space:nowrap}
+.tb.active{background:var(--blue);color:#0a0f1e}
+
+/* ── Summary badges ── */
+.sum{display:flex;gap:10px;margin-bottom:18px}
+.bdg{flex:1;background:var(--card2);border-radius:14px;padding:14px;border:1px solid var(--border);text-align:center;transition:border-color .3s}
+.bdg.done{border-color:var(--green)}
+.bnn{font-size:26px;font-weight:800;color:var(--blue);transition:color .3s;letter-spacing:-1px}
+.bnn.pur{color:var(--purp)}
+.bdg.done .bnn{color:var(--green)}
+.bla{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* ── Card ── */
+.card{background:var(--card);border-radius:16px;border:1px solid var(--border2);overflow:hidden;margin-bottom:14px}
+.ch{padding:13px 16px;border-bottom:1px solid #1e2d4a;display:flex;align-items:center;gap:10px}
+.ch.blue{background:linear-gradient(135deg,#1e3a5f,var(--card2))}
+.ch.purp{background:linear-gradient(135deg,#2d1b69,var(--card2))}
+.ch.grn{background:linear-gradient(135deg,#064e3b,var(--card2))}
+.ctt{font-weight:700;font-size:15px}
+.cst{font-size:11px;color:var(--muted);margin-top:1px}
+.cb{padding:12px 14px}
+
+/* ── Set rows ── */
+.sr{display:flex;align-items:center;padding:13px 14px;margin-bottom:8px;border-radius:12px;cursor:pointer;background:var(--card2);border:1px solid var(--border);transition:all .2s;-webkit-user-select:none;user-select:none}
+.sr:last-child{margin-bottom:0}
+.sr.done{background:rgba(74,222,128,.08);border-color:var(--green)}
+.sr:active{transform:scale(0.98);opacity:.9}
+.cc{width:26px;height:26px;border-radius:50%;border:2px solid var(--dim);background:transparent;display:flex;align-items:center;justify-content:center;margin-right:12px;flex-shrink:0;transition:all .2s;font-size:14px;color:#0a0f1e}
+.sr.done .cc{border-color:var(--green);background:var(--green)}
+.sn{font-weight:600;font-size:14px;color:var(--text);transition:color .2s}
+.sr.done .sn{color:var(--green)}
+.stt{font-size:11px;color:var(--muted);margin-top:1px}
+.sc{font-size:11px;color:var(--dim);background:#0f172a;padding:3px 9px;border-radius:6px}
+
+/* ── Stretch rows ── */
+.si{margin-bottom:10px;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:var(--card2);transition:all .2s}
+.si:last-child{margin-bottom:0}
+.si.done{border-color:var(--purp);background:rgba(129,140,248,.07)}
+.stop{display:flex;align-items:center;padding:13px 14px;cursor:pointer;-webkit-user-select:none;user-select:none}
+.stop:active{opacity:.8}
+.si.done .cc{border-color:var(--purp);background:var(--purp)}
+.si.done .sn{color:var(--purp)}
+.ps{padding:0 14px 12px;border-top:1px solid var(--border2);padding-top:10px}
+.plb{font-size:11px;color:var(--muted);margin-bottom:7px}
+.pr{margin-left:6px;font-weight:700}
+.pr.ok{color:var(--green)}
+.pr.hi{color:var(--red)}
+.pg{display:flex;gap:3px}
+.pb2{flex:1;height:30px;border-radius:6px;cursor:pointer;background:#0f172a;border:1px solid var(--border);font-size:9px;color:var(--dim);font-weight:700;transition:all .15s;font-family:inherit}
+.pb2:active{transform:scale(0.9)}
+.pb2.sok{background:var(--green);border-color:var(--green);color:#0a0f1e}
+.pb2.shi{background:var(--red);border-color:var(--red);color:#0a0f1e}
+.tbs2{display:flex;gap:8px;padding:0 14px 12px}
+.tb2{flex:1;padding:9px 0;border-radius:10px;font-size:12px;font-weight:600;font-family:inherit;transition:all .2s}
+.tb2:active{transform:scale(0.96)}
+.tb2.blue{background:#1e3a5f;color:var(--blue)}
+.tb2.purp{background:#2d1b69;color:var(--purp)}
+
+/* ── Notes ── */
+.nt{font-weight:700;font-size:13px;margin-bottom:10px;color:var(--red)}
+.nr{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px;border-bottom:1px solid var(--border2)}
+.nr:last-child{border-bottom:none}
+.nr.ok{color:var(--green)}
+.nr.bad{color:#94a3b8}
+
+/* ── History ── */
+.hd{background:var(--card);border-radius:14px;border:1px solid var(--border2);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center}
+.hd.today{background:#1e3a5f;border-color:var(--blue)}
+.hlb{font-weight:600;font-size:14px;color:var(--text)}
+.hd.today .hlb{color:var(--blue)}
+.ttag{margin-left:8px;font-size:10px;background:var(--blue);color:#0a0f1e;border-radius:4px;padding:2px 6px;font-weight:700}
+.hss{display:flex;gap:12px;align-items:center}
+.hstt{text-align:center}
+.hsn{font-size:18px;font-weight:800;color:var(--dim)}
+.hsn.ds{color:var(--green)}
+.hsn.dp{color:var(--purp)}
+.hsl{font-size:10px;color:var(--dim)}
+
+/* ── Reminders (iOS style) ── */
+.remind-card{background:var(--card);border-radius:16px;border:1px solid var(--border2);overflow:hidden;margin-bottom:14px}
+.remind-row{display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border2)}
+.remind-row:last-child{border-bottom:none}
+.remind-left{flex:1}
+.remind-name{font-weight:600;font-size:14px;color:var(--text)}
+.remind-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.remind-time-input{
+  background:var(--card2);border:1px solid var(--border);
+  border-radius:8px;color:var(--text);
+  padding:5px 10px;font-size:14px;
+  font-family:inherit;margin-right:12px;
+  width:90px;text-align:center;font-weight:600;
+}
+.ios-toggle{
+  width:51px;height:31px;border-radius:16px;
+  background:#334155;position:relative;cursor:pointer;
+  transition:background .3s;border:none;flex-shrink:0;
+}
+.ios-toggle.on{background:#34c759}
+.ios-toggle::after{
+  content:'';position:absolute;
+  top:2px;left:2px;
+  width:27px;height:27px;border-radius:50%;
+  background:#fff;
+  box-shadow:0 2px 6px rgba(0,0,0,.4);
+  transition:transform .3s cubic-bezier(.25,.46,.45,.94);
+}
+.ios-toggle.on::after{transform:translateX(20px)}
+
+/* iOS reminder info box */
+.ios-info{background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.2);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+.ios-info-title{font-size:13px;font-weight:700;color:var(--blue);margin-bottom:8px}
+.ios-info-step{display:flex;gap:10px;align-items:flex-start;padding:5px 0;font-size:12px;color:#94a3b8;line-height:1.5}
+.ios-step-num{width:18px;height:18px;border-radius:50%;background:rgba(56,189,248,.2);color:var(--blue);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+
+/* In-app alert banner */
+#alert-banner{
+  position:fixed;top:0;left:0;right:0;
+  background:linear-gradient(135deg,#1e3a5f,#1a2744);
+  border-bottom:2px solid var(--blue);
+  padding:calc(var(--safe-top) + 14px) 16px 14px;
+  z-index:50;transform:translateY(-100%);
+  transition:transform .4s cubic-bezier(.25,.46,.45,.94);
+}
+#alert-banner.show{transform:translateY(0)}
+.ab-inner{max-width:480px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.ab-icon{font-size:24px;flex-shrink:0}
+.ab-text{flex:1}
+.ab-title{font-size:14px;font-weight:700;color:var(--blue)}
+.ab-sub{font-size:12px;color:#94a3b8;margin-top:2px}
+.ab-close{font-size:20px;color:var(--muted);background:none;border:none;padding:4px;line-height:1}
+
+/* ── Info tab ── */
+.ir{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border2)}
+.ir:last-child{border-bottom:none}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sc2{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.sc2.blue{background:#1e3a5f;color:var(--blue)}
+.sc2.purp{background:#2d1b69;color:var(--purp)}
+.sit{font-size:13px;color:var(--text);padding-top:3px;flex:1;line-height:1.5}
+.ict{font-weight:700;font-size:14px;margin-bottom:12px}
+
+/* ── Tab content ── */
+.tc{display:none}
+.tc.active{display:block}
+
+/* ── Timer — floating card ── */
+#to{
+  position:fixed;
+  bottom:calc(68px + var(--safe-bot));
+  left:14px;right:14px;
+  background:linear-gradient(135deg,#0d1a2e,#1a2744);
+  border:2px solid var(--blue);
+  border-radius:22px;
+  padding:16px 20px;
+  display:none;
+  flex-direction:column;
+  gap:10px;
+  z-index:100;
+  box-shadow:0 12px 40px rgba(56,189,248,.2),0 4px 16px rgba(0,0,0,.5);
+}
+#to.active{display:flex}
+.timer-top{display:flex;align-items:center;justify-content:space-between}
+.tlt{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+#tcount{font-size:52px;font-weight:800;color:var(--blue);line-height:1;letter-spacing:-2px;font-variant-numeric:tabular-nums}
+#tcount.urg{color:var(--red)}
+.tu{font-size:11px;color:var(--dim);margin-top:2px}
+#sbtn{
+  padding:10px 20px;border-radius:12px;
+  background:#334155;color:var(--text);
+  font-size:14px;font-weight:600;
+  font-family:inherit;
+  transition:all .2s;
+}
+#sbtn:active{transform:scale(0.95);background:#475569}
+.timer-bar-row{display:flex;align-items:center;gap:10px}
+.tbw{flex:1;height:6px;background:#1e293b;border-radius:3px;overflow:hidden}
+#tbar{height:100%;background:linear-gradient(90deg,var(--blue),var(--purp));border-radius:3px;transition:width 1s linear}
+#tbar.urg{background:var(--red)}
+.timer-pct{font-size:11px;color:var(--dim);width:32px;text-align:right;font-variant-numeric:tabular-nums}
+
+/* ── Bottom hint ── */
+#bh{
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--bg);
+  border-top:1px solid var(--border2);
+  padding:10px 20px calc(10px + var(--safe-bot));
+  display:flex;justify-content:center;z-index:99;
+}
+#bh span{font-size:11px;color:#2d3d54}
+</style>
+</head>
+<body>
+
+<!-- In-app alert banner -->
+<div id="alert-banner">
+  <div class="ab-inner">
+    <div class="ab-icon">💪</div>
+    <div class="ab-text">
+      <div class="ab-title" id="ab-title">復健時間到！</div>
+      <div class="ab-sub" id="ab-sub">記得做今天的訓練</div>
+    </div>
+    <button class="ab-close" onclick="closeAlert()">✕</button>
+  </div>
+</div>
+
+<!-- Header -->
+<div id="hdr">
+  <div class="hi">
+    <div class="hr">
+      <div>
+        <div class="hst">手腕復健追蹤</div>
+        <div class="htl">每日計劃 💪</div>
+      </div>
+      <div class="db">
+        <div class="dw" id="wl">第 1 週</div>
+        <div class="dn" id="dn">Day 1</div>
+        <div class="dt">/ 42天</div>
+      </div>
+    </div>
+    <div class="pbg"><div id="pf"></div></div>
+    <div class="pll"><span>開始</span><span>第3週</span><span>第5週</span><span>完成 🎉</span></div>
+  </div>
+</div>
+
+<div id="main">
+  <div class="tabs">
+    <button class="tb active" onclick="sw('today',this)">今日訓練</button>
+    <button class="tb" onclick="sw('history',this)">歷史記錄</button>
+    <button class="tb" onclick="sw('remind',this)">⏰ 提醒</button>
+    <button class="tb" onclick="sw('info',this)">復健資訊</button>
+  </div>
+
+  <!-- TODAY -->
+  <div id="tab-today" class="tc active">
+    <div class="sum">
+      <div class="bdg" id="bs"><div class="bnn" id="bsn">0/4</div><div class="bla">組肌肉訓練</div></div>
+      <div class="bdg" id="bst"><div class="bnn pur" id="bstn">0/3</div><div class="bla">次伸展運動</div></div>
+    </div>
+    <div class="card">
+      <div class="ch blue"><span style="font-size:20px">💪</span><div><div class="ctt">肌肉訓練</div><div class="cst">每組10次 · 出力3秒 · 間隔3–4小時</div></div></div>
+      <div class="cb" id="sl"></div>
+    </div>
+    <div class="card">
+      <div class="ch purp"><span style="font-size:20px">🤲</span><div><div class="ctt">伸展運動</div><div class="cst">每次80秒 · 每天3次</div></div></div>
+      <div class="cb" id="stl"></div>
+    </div>
+    <div class="card" style="padding:16px">
+      <div class="nt">⚠️ 重要注意事項</div>
+      <div class="nr bad"><span>❌</span><span>不要按摩</span></div>
+      <div class="nr bad"><span>❌</span><span>不要做重複手腕動作</span></div>
+      <div class="nr bad"><span>❌</span><span>不要過度訓練</span></div>
+      <div class="nr bad"><span>❌</span><span>不要提重物</span></div>
+      <div class="nr ok"><span>✅</span><span>每天做復健</span></div>
+      <div class="nr ok"><span>✅</span><span>分開時間做（間隔3–4小時）</span></div>
+      <div class="nr ok"><span>✅</span><span>保護手腕</span></div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div id="tab-history" class="tc">
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px;text-align:center">最近 7 天</div>
+    <div id="histlist"></div>
+  </div>
+
+  <!-- REMINDERS -->
+  <div id="tab-remind" class="tc">
+
+    <!-- iOS info -->
+    <div class="ios-info">
+      <div class="ios-info-title">📱 iPhone 提醒設定方式</div>
+      <div class="ios-info-step"><div class="ios-step-num">1</div><div>把這個 App 加到主畫面（Safari → 分享 → 加入主畫面）</div></div>
+      <div class="ios-info-step"><div class="ios-step-num">2</div><div>從主畫面開啟 App 後，開啟下方提醒開關</div></div>
+      <div class="ios-info-step"><div class="ios-step-num">3</div><div>每次到時間打開 App，會出現提醒橫幅通知你</div></div>
+      <div class="ios-info-step"><div class="ios-step-num">💡</div><div style="color:var(--blue)">也可以直接用 iPhone 時鐘 App 設鬧鐘，更可靠！</div></div>
+    </div>
+
+    <!-- Clock app shortcut -->
+    <div class="card" style="padding:14px 16px;margin-bottom:14px">
+      <div style="font-weight:700;font-size:13px;margin-bottom:10px;color:#fbbf24">⏰ 快速設定 iPhone 鬧鐘</div>
+      <div style="font-size:12px;color:#94a3b8;margin-bottom:12px;line-height:1.6">點下方按鈕，複製備忘文字，貼到 iPhone 時鐘 App 的鬧鐘備忘，一次設好 4 個提醒。</div>
+      <div id="alarm-times-display" style="background:#0f172a;border-radius:10px;padding:12px;margin-bottom:12px;font-size:13px;color:var(--text);line-height:2"></div>
+      <button onclick="copyAlarmText()" style="width:100%;padding:11px;border-radius:10px;background:#fbbf24;color:#0a0f1e;font-size:13px;font-weight:700;font-family:inherit;transition:all .2s" id="copy-btn">📋 複製鬧鐘時間</button>
+    </div>
+
+    <!-- In-app reminders -->
+    <div class="remind-card">
+      <div style="padding:13px 16px;border-bottom:1px solid var(--border2);font-weight:700;font-size:13px;color:var(--muted)">App 內提醒（開啟 App 時顯示）</div>
+      <div id="remind-list"></div>
+    </div>
+  </div>
+
+  <!-- INFO -->
+  <div id="tab-info" class="tc">
+    <div class="card" style="padding:16px;margin-bottom:14px">
+      <div class="ict">⏱ 恢復時間表（共6週）</div>
+      <div class="ir"><div class="dot" style="background:var(--red)"></div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--red)">第1–2週</div><div style="font-size:12px;color:var(--muted)">發炎下降</div></div><span id="wc0"></span></div>
+      <div class="ir"><div class="dot" style="background:#fb923c"></div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:#fb923c">第3–4週</div><div style="font-size:12px;color:var(--muted)">肌肉開始恢復</div></div><span id="wc1"></span></div>
+      <div class="ir"><div class="dot" style="background:var(--green)"></div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--green)">第5–6週</div><div style="font-size:12px;color:var(--muted)">力量慢慢回來</div></div><span id="wc2"></span></div>
+    </div>
+    <div class="card" style="padding:16px;margin-bottom:14px">
+      <div class="ict">💪 肌肉訓練動作說明</div>
+      <div class="ir"><div class="sc2 blue">1</div><div class="sit">手臂抬起</div></div>
+      <div class="ir"><div class="sc2 blue">2</div><div class="sit">用另一隻手輔助</div></div>
+      <div class="ir"><div class="sc2 blue">3</div><div class="sit">出力，維持3秒</div></div>
+      <div class="ir"><div class="sc2 blue">4</div><div class="sit">放鬆</div></div>
+      <div class="ir"><div class="sc2 blue">5</div><div class="sit">重複10次 = 1組</div></div>
+    </div>
+    <div class="card" style="padding:16px">
+      <div class="ict">🤲 伸展動作說明</div>
+      <div class="ir"><div class="sc2 purp">1</div><div class="sit">握拳</div></div>
+      <div class="ir"><div class="sc2 purp">2</div><div class="sit">拇指壓住食指</div></div>
+      <div class="ir"><div class="sc2 purp">3</div><div class="sit">手腕往內拉伸</div></div>
+      <div class="ir"><div class="sc2 purp">4</div><div class="sit">維持40秒，評估疼痛 (0–10)</div></div>
+      <div class="ir"><div class="sc2 purp">5</div><div class="sit">≤5分：可加力；≥6分：放鬆</div></div>
+      <div class="ir"><div class="sc2 purp">6</div><div class="sit">再拉伸40秒，共80秒</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Timer -->
+<div id="to">
+  <div class="timer-top">
+    <div>
+      <div class="tlt" id="tlt">計時中</div>
+      <div id="tcount">40</div>
+      <div class="tu">秒</div>
+    </div>
+    <button id="sbtn" onclick="stopTimer()">停止 ✕</button>
+  </div>
+  <div class="timer-bar-row">
+    <div class="tbw"><div id="tbar" style="width:100%"></div></div>
+    <div class="timer-pct" id="tpct">100%</div>
+  </div>
+</div>
+
+<div id="bh"><span>點擊打勾記錄 · 點 ⏱ 計時</span></div>
+
+<!-- Splash -->
+<div id="splash" style="position:fixed;inset:0;background:#0a0f1e;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .5s ease">
+  <div style="width:96px;height:96px;background:#121827;border-radius:26px;display:flex;align-items:center;justify-content:center;margin-bottom:22px;box-shadow:0 0 50px rgba(56,189,248,.25)">
+    <svg width="56" height="56" viewBox="0 0 100 100" fill="none">
+      <circle cx="50" cy="38" r="22" stroke="#38bdf8" stroke-width="7"/>
+      <line x1="50" y1="16" x2="50" y2="38" stroke="#38bdf8" stroke-width="7" stroke-linecap="round"/>
+      <rect x="14" y="66" width="72" height="10" rx="5" fill="#1e293b"/>
+      <rect x="14" y="66" width="40" height="10" rx="5" fill="#38bdf8"/>
+    </svg>
+  </div>
+  <div style="font-size:10px;letter-spacing:4px;color:#38bdf8;margin-bottom:8px;font-weight:500">手腕復健追蹤</div>
+  <div style="font-size:24px;font-weight:800;color:#f1f5f9;letter-spacing:-0.5px">每日計劃 💪</div>
+  <div style="margin-top:36px;width:44px;height:3px;background:#1e293b;border-radius:2px;overflow:hidden">
+    <div id="sbar" style="height:100%;width:0%;background:linear-gradient(90deg,#38bdf8,#818cf8);border-radius:2px;transition:width 1s ease"></div>
+  </div>
+</div>
+
+<script>
+// ── Constants ──
+const TIMES4 = ["起床後","中午","下午","睡前2小時"];
+const LABELS = ["第1組 提醒","第2組 提醒","第3組 提醒","第4組 提醒"];
+const DEF_TIMES = ["07:00","12:00","16:00","21:00"];
+const KEY = "rehab-ios-v1";
+
+// ── State ──
+let S = {
+  data: {},
+  start: null,
+  reminders: DEF_TIMES.map((t,i) => ({time:t, on:false, label:LABELS[i]}))
+};
+let tInt=null, tSec=0, tTotal=40;
+let alertTimeout=null;
+
+// ── Storage ──
+function load(){
+  try{
+    const r=localStorage.getItem(KEY);
+    if(r){ const p=JSON.parse(r); S={...S,...p}; }
+    if(!S.start) S.start=today();
+    if(!S.data) S.data={};
+    if(!S.reminders||S.reminders.length!==4)
+      S.reminders=DEF_TIMES.map((t,i)=>({time:t,on:false,label:LABELS[i]}));
+  }catch(e){}
+}
+function save(){ try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){} }
+
+// ── Helpers ──
+function today(){ return new Date().toISOString().slice(0,10); }
+const T = today();
+function def(){ return {sets:[false,false,false,false],str:[false,false,false],pain:["","",""]}; }
+function gd(k){ if(!S.data[k]) S.data[k]=def(); return S.data[k]; }
+function days(){ return S.start ? Math.floor((new Date(T)-new Date(S.start))/86400000) : 0; }
+
+// iOS haptic (does nothing if not supported, no error)
+function haptic(type){
+  try{ if(window.navigator&&navigator.vibrate){ navigator.vibrate(type==='light'?10:type==='medium'?20:30); } }catch(e){}
+}
+
+// ── Header ──
+function updateHeader(){
+  const d=days(),w=Math.floor(d/7)+1,pct=Math.min(d/42*100,100);
+  document.getElementById('wl').textContent='第 '+w+' 週';
+  document.getElementById('dn').textContent='Day '+(d+1);
+  document.getElementById('pf').style.width=pct+'%';
+  for(let i=0;i<3;i++){
+    const el=document.getElementById('wc'+i);
+    if(el) el.textContent=w>=(i+1)*2-1?'✅':'';
+  }
+}
+
+// ── Summary ──
+function updateSum(){
+  const d=gd(T);
+  const sc=d.sets.filter(Boolean).length;
+  const stc=d.str.filter(Boolean).length;
+  document.getElementById('bsn').textContent=sc+'/4';
+  document.getElementById('bstn').textContent=stc+'/3';
+  document.getElementById('bs').classList.toggle('done',sc===4);
+  document.getElementById('bst').classList.toggle('done',stc===3);
+}
+
+// ── Sets ──
+function renderSets(){
+  const d=gd(T),c=document.getElementById('sl');
+  c.innerHTML='';
+  d.sets.forEach((done,i)=>{
+    const row=document.createElement('div');
+    row.className='sr'+(done?' done':'');
+    row.innerHTML=`<div class="cc">${done?'✓':''}</div><div style="flex:1"><div class="sn">第 ${i+1} 組</div><div class="stt">${TIMES4[i]}</div></div><div class="sc">10次</div>`;
+    row.onclick=()=>{ haptic('medium'); d.sets[i]=!d.sets[i]; save(); render(); };
+    c.appendChild(row);
+  });
+}
+
+// ── Stretches ──
+function renderStr(){
+  const d=gd(T),c=document.getElementById('stl');
+  c.innerHTML='';
+  d.str.forEach((done,i)=>{
+    const pain=d.pain[i],pn=parseInt(pain);
+    const item=document.createElement('div');
+    item.className='si'+(done?' done':'');
+    let btns='';
+    for(let n=0;n<=10;n++){
+      const sel=pain===String(n);
+      btns+=`<button class="pb2${sel?(n<=5?' sok':' shi'):''}" onclick="event.stopPropagation();setPain(${i},${n})">${n}</button>`;
+    }
+    const res=pain!==''?`<span class="pr ${pn<=5?'ok':'hi'}">${pain}分 ${pn<=5?'✅ 可加力':'⚠️ 放鬆'}</span>`:'';
+    item.innerHTML=`
+      <div class="stop">
+        <div class="cc">${done?'✓':''}</div>
+        <div style="flex:1"><div class="sn">第 ${i+1} 次</div><div class="stt">拉伸40秒 + 再拉40秒</div></div>
+      </div>
+      <div class="ps">
+        <div class="plb">疼痛分數 (0–10)：${res}</div>
+        <div class="pg">${btns}</div>
+      </div>
+      <div class="tbs2">
+        <button class="tb2 blue" onclick="startTimer('第${i+1}次 · 第一段',40)">⏱ 第1段 40秒</button>
+        <button class="tb2 purp" onclick="startTimer('第${i+1}次 · 第二段',40)">⏱ 第2段 40秒</button>
+      </div>`;
+    item.querySelector('.stop').onclick=(e)=>{ if(e.target.closest('button')) return; haptic('medium'); d.str[i]=!d.str[i]; save(); render(); };
+    c.appendChild(item);
+  });
+}
+
+function setPain(i,n){ haptic('light'); const d=gd(T); d.pain[i]=String(n); save(); render(); }
+
+// ── History ──
+function renderHist(){
+  const c=document.getElementById('histlist');
+  c.innerHTML='';
+  for(let i=6;i>=0;i--){
+    const dt=new Date(T); dt.setDate(dt.getDate()-i);
+    const k=dt.toISOString().slice(0,10);
+    const e=S.data[k]||def();
+    const sc=e.sets.filter(Boolean).length,stc=e.str.filter(Boolean).length;
+    const isT=k===T,lbl=`${dt.getMonth()+1}/${dt.getDate()}`;
+    const icon=sc===4&&stc===3?'🏆':(sc>0||stc>0?'📈':'⬜');
+    const row=document.createElement('div');
+    row.className='hd'+(isT?' today':'');
+    row.innerHTML=`
+      <div style="flex:1"><span class="hlb">${lbl}</span>${isT?'<span class="ttag">今天</span>':''}</div>
+      <div class="hss">
+        <div class="hstt"><div class="hsn ${sc===4?'ds':''}">${sc}/4</div><div class="hsl">組</div></div>
+        <div class="hstt"><div class="hsn ${stc===3?'dp':''}">${stc}/3</div><div class="hsl">伸展</div></div>
+        <div style="font-size:22px">${icon}</div>
+      </div>`;
+    c.appendChild(row);
+  }
+}
+
+// ── Reminders ──
+function renderReminders(){
+  // Alarm times display
+  const atd=document.getElementById('alarm-times-display');
+  if(atd){
+    atd.innerHTML=S.reminders.map((r,i)=>
+      `<div><span style="color:var(--blue);font-weight:700">${r.time}</span> <span style="color:var(--muted)">— ${LABELS[i]}（${TIMES4[i]}）</span></div>`
+    ).join('');
+  }
+
+  const c=document.getElementById('remind-list');
+  if(!c) return;
+  c.innerHTML='';
+  S.reminders.forEach((r,i)=>{
+    const row=document.createElement('div');
+    row.className='remind-row';
+    row.innerHTML=`
+      <div class="remind-left">
+        <div class="remind-name">${LABELS[i]}</div>
+        <div class="remind-sub">${TIMES4[i]}</div>
+      </div>
+      <input type="time" class="remind-time-input" value="${r.time}" onchange="setRemindTime(${i},this.value)">
+      <button class="ios-toggle ${r.on?'on':''}" onclick="toggleRemind(${i})"></button>`;
+    c.appendChild(row);
+  });
+}
+
+function setRemindTime(i,val){
+  S.reminders[i].time=val; save(); renderReminders(); scheduleInAppAlerts();
+}
+
+function toggleRemind(i){
+  haptic('medium');
+  S.reminders[i].on=!S.reminders[i].on;
+  save(); renderReminders(); scheduleInAppAlerts();
+}
+
+function copyAlarmText(){
+  const text=S.reminders.map((r,i)=>`${r.time} ${LABELS[i]}（${TIMES4[i]}）`).join('\n');
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(()=>{
+      const btn=document.getElementById('copy-btn');
+      btn.textContent='✅ 已複製！';
+      setTimeout(()=>btn.textContent='📋 複製鬧鐘時間',2000);
+    }).catch(()=>fallbackCopy(text));
+  } else { fallbackCopy(text); }
+}
+
+function fallbackCopy(text){
+  const ta=document.createElement('textarea');
+  ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try{ document.execCommand('copy');
+    const btn=document.getElementById('copy-btn');
+    btn.textContent='✅ 已複製！';
+    setTimeout(()=>btn.textContent='📋 複製鬧鐘時間',2000);
+  }catch(e){}
+  document.body.removeChild(ta);
+}
+
+// ── In-app alert (check on open) ──
+let alertTimeouts=[];
+function scheduleInAppAlerts(){
+  alertTimeouts.forEach(t=>clearTimeout(t));
+  alertTimeouts=[];
+  const now=new Date();
+  S.reminders.forEach((r,i)=>{
+    if(!r.on) return;
+    const [h,m]=r.time.split(':').map(Number);
+    const next=new Date(); next.setHours(h,m,0,0);
+    if(next<=now) next.setDate(next.getDate()+1);
+    const ms=next-now;
+    const t=setTimeout(()=>{
+      showAlert(`💪 ${LABELS[i]}`,`${TIMES4[i]} — 記得做復健！`);
+      haptic('heavy');
+      scheduleInAppAlerts();
+    },ms);
+    alertTimeouts.push(t);
+  });
+}
+
+function checkAlertsOnOpen(){
+  const now=new Date();
+  const nowMin=now.getHours()*60+now.getMinutes();
+  const lastOpen=parseInt(localStorage.getItem('lastOpen')||'0');
+  localStorage.setItem('lastOpen',String(nowMin));
+  S.reminders.forEach((r,i)=>{
+    if(!r.on) return;
+    const [h,m]=r.time.split(':').map(Number);
+    const rMin=h*60+m;
+    // Show if within 30 min window and not already dismissed
+    if(Math.abs(nowMin-rMin)<=30){
+      const dismissKey='dismissed-'+T+'-'+i;
+      if(!localStorage.getItem(dismissKey)){
+        setTimeout(()=>showAlert(`💪 ${LABELS[i]}`,`${TIMES4[i]} — 記得做復健！`),1500);
+      }
+    }
+  });
+}
+
+function showAlert(title,sub){
+  document.getElementById('ab-title').textContent=title;
+  document.getElementById('ab-sub').textContent=sub;
+  const banner=document.getElementById('alert-banner');
+  banner.classList.add('show');
+  if(alertTimeout) clearTimeout(alertTimeout);
+  alertTimeout=setTimeout(()=>banner.classList.remove('show'),5000);
+}
+
+function closeAlert(){
+  document.getElementById('alert-banner').classList.remove('show');
+  if(alertTimeout) clearTimeout(alertTimeout);
+}
+
+// ── Tabs ──
+function sw(tab,btn){
+  document.querySelectorAll('.tc').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tb').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  btn.classList.add('active');
+  if(tab==='remind') renderReminders();
+}
+
+// ── Timer ──
+function startTimer(label,sec){
+  haptic('medium');
+  if(tInt) clearInterval(tInt);
+  tSec=sec; tTotal=sec;
+  document.getElementById('tlt').textContent=label;
+  document.getElementById('tcount').textContent=tSec;
+  document.getElementById('tcount').classList.remove('urg');
+  document.getElementById('tbar').style.width='100%';
+  document.getElementById('tbar').classList.remove('urg');
+  document.getElementById('tpct').textContent='100%';
+  document.getElementById('to').classList.add('active');
+  tInt=setInterval(()=>{
+    tSec--;
+    const pct=Math.round(tSec/tTotal*100);
+    document.getElementById('tcount').textContent=tSec;
+    document.getElementById('tbar').style.width=pct+'%';
+    document.getElementById('tpct').textContent=pct+'%';
+    if(tSec<=10){
+      document.getElementById('tcount').classList.add('urg');
+      document.getElementById('tbar').classList.add('urg');
+      haptic('light');
+    }
+    if(tSec<=0){ stopTimer(); haptic('heavy'); }
+  },1000);
+}
+
+function stopTimer(){
+  if(tInt) clearInterval(tInt);
+  tInt=null;
+  document.getElementById('to').classList.remove('active');
+}
+
+// ── Render all ──
+function render(){ updateHeader(); updateSum(); renderSets(); renderStr(); renderHist(); }
+
+// ── Init ──
+load(); render(); scheduleInAppAlerts(); checkAlertsOnOpen();
+
+// Splash
+setTimeout(()=>{ document.getElementById('sbar').style.width='100%'; },100);
+setTimeout(()=>{ const s=document.getElementById('splash'); s.style.opacity='0'; setTimeout(()=>s.remove(),500); },1200);
+</script>
+</body>
+</html>

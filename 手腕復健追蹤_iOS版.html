@@ -332,7 +332,19 @@ input{-webkit-appearance:none;outline:none}
     <!-- Daily schedule -->
     <div class="card" style="padding:16px;margin-bottom:14px">
       <div class="ict">📅 每日時間表</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:14px">12:00 起床 · 00:00 睡覺</div>
+      <div style="display:flex;gap:10px;margin-bottom:14px;align-items:center">
+        <div style="flex:1">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:4px">🌅 起床時間</div>
+          <input type="time" id="wake-input" value="12:00" onchange="updateSchedule()"
+            style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:7px 10px;font-size:14px;font-weight:600;font-family:inherit;text-align:center">
+        </div>
+        <div style="font-size:18px;color:var(--dim)">→</div>
+        <div style="flex:1">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:4px">🌙 睡覺時間</div>
+          <input type="time" id="sleep-input" value="00:00" onchange="updateSchedule()"
+            style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:7px 10px;font-size:14px;font-weight:600;font-family:inherit;text-align:center">
+        </div>
+      </div>
       <div id="schedule-list"></div>
     </div>
 
@@ -430,13 +442,15 @@ const FULL_SCHEDULE = [
 ];
 const LABELS = ["💪 第1組 肌肉訓練","🤲 伸展 第1次","💪 第2組 肌肉訓練","🤲 伸展 第2次","💪 第3組 肌肉訓練","💪 第4組 肌肉訓練","🤲 伸展 第3次"];
 const DEF_TIMES = ["12:30","13:00","15:30","18:00","18:30","21:30","22:00"];
-const KEY = "rehab-ios-v3";
+const KEY = "rehab-ios-v4";
 
 // ── State ──
 let S = {
   data: {},
   start: null,
-  reminders: DEF_TIMES.map((t,i) => ({time:t, on:false, label:LABELS[i]}))
+  reminders: DEF_TIMES.map((t,i) => ({time:t, on:false, label:LABELS[i]})),
+  wakeTime: "12:00",
+  sleepTime: "00:00"
 };
 let tInt=null, tSec=0, tTotal=40;
 let alertTimeout=null;
@@ -451,8 +465,8 @@ function load(){
     if(!S.reminders||S.reminders.length!==7)
       S.reminders=DEF_TIMES.map((t,i)=>({time:t,on:false,label:LABELS[i]}));
     // Force update times to correct schedule
-    // Force update times
-    if(S.reminders.length===7) DEF_TIMES.forEach((t,i)=>{ if(S.reminders[i]) S.reminders[i].time=t; });
+    if(!S.wakeTime) S.wakeTime="12:00";
+    if(!S.sleepTime) S.sleepTime="00:00";
   }catch(e){}
 }
 function save(){ try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){} }
@@ -610,16 +624,7 @@ function toggleRemind(i){
 }
 
 function copyAlarmText(){
-  const allTimes = [
-    {time:"12:30", label:"💪 肌肉訓練 第1組"},
-    {time:"13:00", label:"🤲 伸展 第1次"},
-    {time:"15:30", label:"💪 肌肉訓練 第2組"},
-    {time:"18:00", label:"🤲 伸展 第2次"},
-    {time:"18:30", label:"💪 肌肉訓練 第3組"},
-    {time:"21:30", label:"💪 肌肉訓練 第4組"},
-    {time:"22:00", label:"🤲 伸展 第3次"},
-  ];
-  const text=allTimes.map(a=>`${a.time} ${a.label}`).join('\n');
+  const text=calcSchedule().filter(s=>s.type!=='life').map(a=>`${a.time} ${a.icon} ${a.text}`).join('\n');
   if(navigator.clipboard){
     navigator.clipboard.writeText(text).then(()=>{
       const btn=document.getElementById('copy-btn');
@@ -739,16 +744,79 @@ function stopTimer(){
 }
 
 // ── Render all ──
+function calcSchedule(){
+  // Calculate times based on wake/sleep
+  const [wh,wm] = S.wakeTime.split(":").map(Number);
+  const wMin = wh*60+wm;
+  const [sh,sm] = S.sleepTime.split(":").map(Number);
+  let sMin = sh*60+sm;
+  if(sMin <= wMin) sMin += 24*60; // next day
+  const awake = sMin - wMin; // total awake minutes
+
+  // Distribute 4 sets evenly, starting 30min after wake
+  const setStart = wMin + 30;
+  const gap = Math.floor((awake - 90) / 3); // space between sets
+  const setTimes = [0,1,2,3].map(i => setStart + i*gap);
+
+  // Stretches: 30min after set 1, between set 2-3, 30min after set 4
+  const strTimes = [setTimes[0]+30, setTimes[1]+Math.floor(gap/2), setTimes[3]+30];
+
+  function toHHMM(min){
+    const m = min % (24*60);
+    const h = Math.floor(m/60) % 24;
+    const mm = m % 60;
+    return `${String(h).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
+  }
+
+  const schedule = [
+    {time: S.wakeTime, icon:"🌅", text:"起床", type:"life"},
+    {time: toHHMM(setTimes[0]), icon:"💪", text:"肌肉訓練 第1組", type:"set"},
+    {time: toHHMM(strTimes[0]), icon:"🤲", text:"伸展 第1次", type:"str"},
+    {time: toHHMM(setTimes[1]), icon:"💪", text:"肌肉訓練 第2組", type:"set"},
+    {time: toHHMM(strTimes[1]), icon:"🤲", text:"伸展 第2次", type:"str"},
+    {time: toHHMM(setTimes[2]), icon:"💪", text:"肌肉訓練 第3組", type:"set"},
+    {time: toHHMM(setTimes[3]), icon:"💪", text:"肌肉訓練 第4組", type:"set"},
+    {time: toHHMM(strTimes[2]), icon:"🤲", text:"伸展 第3次", type:"str"},
+    {time: S.sleepTime, icon:"🌙", text:"睡覺", type:"life"},
+  ];
+
+  // Update reminders to match new times
+  const newTimes = [
+    toHHMM(setTimes[0]), toHHMM(strTimes[0]),
+    toHHMM(setTimes[1]), toHHMM(strTimes[1]),
+    toHHMM(setTimes[2]), toHHMM(setTimes[3]),
+    toHHMM(strTimes[2])
+  ];
+  newTimes.forEach((t,i)=>{ if(S.reminders[i]) S.reminders[i].time=t; });
+
+  return schedule;
+}
+
+function updateSchedule(){
+  const wi = document.getElementById('wake-input');
+  const si = document.getElementById('sleep-input');
+  if(wi) S.wakeTime = wi.value;
+  if(si) S.sleepTime = si.value;
+  save(); renderSchedule(); renderReminders();
+}
+
 function renderSchedule(){
+  // Sync inputs
+  const wi=document.getElementById('wake-input');
+  const si=document.getElementById('sleep-input');
+  if(wi) wi.value=S.wakeTime;
+  if(si) si.value=S.sleepTime;
+
+  const schedule = calcSchedule();
   const now=new Date();
   const nowMin=now.getHours()*60+now.getMinutes();
   const c=document.getElementById("schedule-list");
   if(!c) return;
   c.innerHTML="";
-  FULL_SCHEDULE.forEach(item=>{
+  schedule.forEach(item=>{
     const [h,m]=item.time.split(":").map(Number);
     const iMin=h*60+m;
-    const isPast=nowMin>iMin;
+    const isPast=nowMin>iMin && iMin > 0;
     const isNow=Math.abs(nowMin-iMin)<=30;
     const color=item.type==="set"?"var(--blue)":item.type==="str"?"var(--purp)":"var(--muted)";
     const row=document.createElement("div");
@@ -756,6 +824,13 @@ function renderSchedule(){
     row.innerHTML=`<div style="font-size:18px">${item.icon}</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:${isNow?"#fbbf24":isPast?"var(--dim)":"var(--text)"}">${item.text}${isNow?" 👈":""}</div></div><div style="font-size:13px;font-weight:700;color:${color};${isPast?"opacity:.4":""}">${item.time}</div>`;
     c.appendChild(row);
   });
+
+  // Update alarm display
+  const atd=document.getElementById('alarm-times-display');
+  if(atd){
+    const sched = calcSchedule().filter(s=>s.type!=='life');
+    atd.innerHTML=sched.map(a=>`<div><span style="color:var(--blue);font-weight:700">${a.time}</span> <span style="color:var(--muted)">— ${a.icon} ${a.text}</span></div>`).join('');
+  }
 }
 
 function render(){ updateHeader(); updateSum(); renderSets(); renderStr(); renderHist(); renderSchedule(); }

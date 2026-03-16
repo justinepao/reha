@@ -450,6 +450,8 @@ function load(){
     if(!S.data) S.data={};
     if(!S.reminders||S.reminders.length!==4)
       S.reminders=DEF_TIMES.map((t,i)=>({time:t,on:false,label:LABELS[i]}));
+    // Force update times to correct schedule
+    DEF_TIMES.forEach((t,i)=>{ if(S.reminders[i]) S.reminders[i].time=t; });
   }catch(e){}
 }
 function save(){ try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){} }
@@ -565,8 +567,17 @@ function renderReminders(){
   // Alarm times display
   const atd=document.getElementById('alarm-times-display');
   if(atd){
-    atd.innerHTML=S.reminders.map((r,i)=>
-      `<div><span style="color:var(--blue);font-weight:700">${r.time}</span> <span style="color:var(--muted)">— ${LABELS[i]}（${TIMES4[i]}）</span></div>`
+    const allTimes = [
+      {time:"12:30", label:"💪 肌肉訓練 第1組"},
+      {time:"13:00", label:"🤲 伸展 第1次"},
+      {time:"15:30", label:"💪 肌肉訓練 第2組"},
+      {time:"18:00", label:"🤲 伸展 第2次"},
+      {time:"18:30", label:"💪 肌肉訓練 第3組"},
+      {time:"21:30", label:"💪 肌肉訓練 第4組"},
+      {time:"22:00", label:"🤲 伸展 第3次"},
+    ];
+    atd.innerHTML=allTimes.map(a=>
+      `<div><span style="color:var(--blue);font-weight:700">${a.time}</span> <span style="color:var(--muted)">— ${a.label}</span></div>`
     ).join('');
   }
 
@@ -598,7 +609,16 @@ function toggleRemind(i){
 }
 
 function copyAlarmText(){
-  const text=S.reminders.map((r,i)=>`${r.time} ${LABELS[i]}（${TIMES4[i]}）`).join('\n');
+  const allTimes = [
+    {time:"12:30", label:"💪 肌肉訓練 第1組"},
+    {time:"13:00", label:"🤲 伸展 第1次"},
+    {time:"15:30", label:"💪 肌肉訓練 第2組"},
+    {time:"18:00", label:"🤲 伸展 第2次"},
+    {time:"18:30", label:"💪 肌肉訓練 第3組"},
+    {time:"21:30", label:"💪 肌肉訓練 第4組"},
+    {time:"22:00", label:"🤲 伸展 第3次"},
+  ];
+  const text=allTimes.map(a=>`${a.time} ${a.label}`).join('\n');
   if(navigator.clipboard){
     navigator.clipboard.writeText(text).then(()=>{
       const btn=document.getElementById('copy-btn');

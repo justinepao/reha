@@ -290,8 +290,7 @@ input{-webkit-appearance:none;outline:none}
   <div class="tabs">
     <button class="tb active" onclick="sw('today',this)">今日訓練</button>
     <button class="tb" onclick="sw('history',this)">歷史記錄</button>
-    <button class="tb" onclick="sw('remind',this)">⏰ 提醒</button>
-    <button class="tb" onclick="sw('schedule',this)">📅 時間表</button>
+    <button class="tb" onclick="sw('remind',this)">📅 時間表</button>
     <button class="tb" onclick="sw('info',this)">復健資訊</button>
   </div>
 
@@ -327,44 +326,28 @@ input{-webkit-appearance:none;outline:none}
     <div id="histlist"></div>
   </div>
 
-  <!-- REMINDERS -->
+  <!-- SCHEDULE + REMINDERS (merged) -->
   <div id="tab-remind" class="tc">
 
-    <!-- iOS info -->
-    <div class="ios-info">
-      <div class="ios-info-title">📱 iPhone 提醒設定方式</div>
-      <div class="ios-info-step"><div class="ios-step-num">1</div><div>把這個 App 加到主畫面（Safari → 分享 → 加入主畫面）</div></div>
-      <div class="ios-info-step"><div class="ios-step-num">2</div><div>從主畫面開啟 App 後，開啟下方提醒開關</div></div>
-      <div class="ios-info-step"><div class="ios-step-num">3</div><div>每次到時間打開 App，會出現提醒橫幅通知你</div></div>
-      <div class="ios-info-step"><div class="ios-step-num">💡</div><div style="color:var(--blue)">也可以直接用 iPhone 時鐘 App 設鬧鐘，更可靠！</div></div>
+    <!-- Daily schedule -->
+    <div class="card" style="padding:16px;margin-bottom:14px">
+      <div class="ict">📅 每日時間表</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:14px">12:00 起床 · 00:00 睡覺</div>
+      <div id="schedule-list"></div>
     </div>
 
-    <!-- Clock app shortcut -->
+    <!-- Copy alarm times -->
     <div class="card" style="padding:14px 16px;margin-bottom:14px">
-      <div style="font-weight:700;font-size:13px;margin-bottom:10px;color:#fbbf24">⏰ 快速設定 iPhone 鬧鐘</div>
-      <div style="font-size:12px;color:#94a3b8;margin-bottom:12px;line-height:1.6">點下方按鈕，複製備忘文字，貼到 iPhone 時鐘 App 的鬧鐘備忘，一次設好 4 個提醒。</div>
-      <div id="alarm-times-display" style="background:#0f172a;border-radius:10px;padding:12px;margin-bottom:12px;font-size:13px;color:var(--text);line-height:2"></div>
-      <button onclick="copyAlarmText()" style="width:100%;padding:11px;border-radius:10px;background:#fbbf24;color:#0a0f1e;font-size:13px;font-weight:700;font-family:inherit;transition:all .2s" id="copy-btn">📋 複製鬧鐘時間</button>
+      <div style="font-weight:700;font-size:13px;margin-bottom:6px;color:#fbbf24">⏰ 一鍵複製鬧鐘時間</div>
+      <div style="font-size:11px;color:#94a3b8;margin-bottom:10px">複製後貼到 iPhone 時鐘備忘</div>
+      <div id="alarm-times-display" style="background:#0f172a;border-radius:10px;padding:10px;margin-bottom:10px;font-size:12px;color:var(--text);line-height:2"></div>
+      <button onclick="copyAlarmText()" style="width:100%;padding:11px;border-radius:10px;background:#fbbf24;color:#0a0f1e;font-size:13px;font-weight:700;font-family:inherit" id="copy-btn">📋 複製鬧鐘時間</button>
     </div>
 
     <!-- In-app reminders -->
     <div class="remind-card">
-      <div style="padding:13px 16px;border-bottom:1px solid var(--border2);font-weight:700;font-size:13px;color:var(--muted)">App 內提醒（開啟 App 時顯示）</div>
+      <div style="padding:13px 16px;border-bottom:1px solid var(--border2);font-weight:700;font-size:13px;color:var(--muted)">🔔 App 內提醒開關</div>
       <div id="remind-list"></div>
-    </div>
-  </div>
-
-  <!-- INFO -->
-  <!-- SCHEDULE -->
-  <div id="tab-schedule" class="tc">
-    <div class="card" style="padding:16px;margin-bottom:14px">
-      <div class="ict">📅 每日時間表</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:14px">根據 12:00 起床 · 00:00 睡覺</div>
-      <div id="schedule-list"></div>
-    </div>
-    <div class="card" style="padding:14px 16px">
-      <div style="font-weight:700;font-size:13px;margin-bottom:10px;color:#fbbf24">⏰ 建議鬧鐘時間</div>
-      <div style="font-size:12px;color:#94a3b8;line-height:2">💪 12:30 · 15:30 · 18:30 · 21:30<br>🤲 13:00 · 18:00 · 22:00</div>
     </div>
   </div>
 

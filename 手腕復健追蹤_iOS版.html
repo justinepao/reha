@@ -428,9 +428,9 @@ const FULL_SCHEDULE = [
   {time:"22:00",icon:"🤲",text:"伸展 第3次",type:"str"},
   {time:"00:00",icon:"🌙",text:"睡覺",type:"life"},
 ];
-const LABELS = ["第1組 提醒","第2組 提醒","第3組 提醒","第4組 提醒"];
-const DEF_TIMES = ["12:30","15:30","18:30","21:30"];
-const KEY = "rehab-ios-v1";
+const LABELS = ["💪 第1組 肌肉訓練","🤲 伸展 第1次","💪 第2組 肌肉訓練","🤲 伸展 第2次","💪 第3組 肌肉訓練","💪 第4組 肌肉訓練","🤲 伸展 第3次"];
+const DEF_TIMES = ["12:30","13:00","15:30","18:00","18:30","21:30","22:00"];
+const KEY = "rehab-ios-v3";
 
 // ── State ──
 let S = {
@@ -448,10 +448,11 @@ function load(){
     if(r){ const p=JSON.parse(r); S={...S,...p}; }
     if(!S.start) S.start=today();
     if(!S.data) S.data={};
-    if(!S.reminders||S.reminders.length!==4)
+    if(!S.reminders||S.reminders.length!==7)
       S.reminders=DEF_TIMES.map((t,i)=>({time:t,on:false,label:LABELS[i]}));
     // Force update times to correct schedule
-    DEF_TIMES.forEach((t,i)=>{ if(S.reminders[i]) S.reminders[i].time=t; });
+    // Force update times
+    if(S.reminders.length===7) DEF_TIMES.forEach((t,i)=>{ if(S.reminders[i]) S.reminders[i].time=t; });
   }catch(e){}
 }
 function save(){ try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){} }
